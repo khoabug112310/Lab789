@@ -1,138 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Sales Management System</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>@ViewData["Title"] — Alder Bán hàng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Lab789SalesWebClient.styles.css" asp-append-version="true" />
-    <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        .navbar-brand {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .card-custom {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-        }
-        .table-custom th {
-            background-color: #212529;
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .btn-rounded {
-            border-radius: 20px;
-            padding-left: 18px;
-            padding-right: 18px;
-        }
-    </style>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-3">
-            <div class="container">
-                <a class="navbar-brand d-flex align-items-center gap-2" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-shop text-warning fs-4"></i>
-                    <span>Sales Management</span>
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-1">
-                        <li class="nav-item">
-                            <a class="nav-link px-3 d-flex align-items-center gap-1" asp-area="" asp-controller="Home" asp-action="Index">
-                                <i class="bi bi-box-seam"></i> Products
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 d-flex align-items-center gap-1" asp-area="" asp-controller="Home" asp-action="CreateProduct">
-                                <i class="bi bi-plus-circle"></i> Add Product
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 d-flex align-items-center gap-1" asp-area="" asp-controller="Home" asp-action="Orders">
-                                <i class="bi bi-receipt"></i> Orders List
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link px-3 d-flex align-items-center gap-1" asp-area="" asp-controller="Home" asp-action="CreateOrder">
-                                <i class="bi bi-cart-plus text-warning"></i> Create Order
-                            </a>
-                        </li>
-                    </ul>
-
-                    <ul class="navbar-nav ms-auto align-items-center gap-2">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <li class="nav-item text-white small me-2">
-                                <i class="bi bi-person-circle text-warning me-1"></i>
-                                <strong>@User.Identity.Name</strong>
-                                @{
-                                    var roles = User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role").Select(c => c.Value).Distinct();
-                                }
-                                @if (roles.Any())
-                                {
-                                    <span class="badge bg-warning text-dark ms-1">@string.Join(", ", roles)</span>
-                                }
-                            </li>
-                            <li class="nav-item">
-                                @{
-                                    var returnUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
-                                }
-                                <form action="http://localhost:5122/Account/Logout" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="returnUrl" value="@returnUrl" />
-                                    <button type="submit" class="btn btn-outline-warning btn-sm">
-                                        <i class="bi bi-box-arrow-right me-1"></i> Logout
-                                    </button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                @{
-                                    var returnUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
-                                    var loginUrl = "http://localhost:5122/Account/Login?returnUrl=" + Uri.EscapeDataString(returnUrl);
-                                }
-                                <a href="@loginUrl" class="btn btn-warning btn-sm text-dark fw-semibold">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i> Login
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
+@{
+    var act = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string Mark(string a) => string.Equals(act, a, StringComparison.OrdinalIgnoreCase) ? "is-here" : "";
+    var ordersHere = act.Equals("Orders", StringComparison.OrdinalIgnoreCase) || act.Equals("Order", StringComparison.OrdinalIgnoreCase) ? "is-here" : "";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+    var roles = User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role || c.Type == "role").Select(c => c.Value).Distinct().ToList();
+    var returnUrl = $"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.PathBase}{Context.Request.Path}{Context.Request.QueryString}";
+    var loginUrl = "http://localhost:5122/Account/Login?returnUrl=" + Uri.EscapeDataString(returnUrl);
+}
+<body class="shell">
+    <aside class="rail">
+        <a class="mark" asp-controller="Home" asp-action="Index">
+            <span class="mark-badge">Bh</span>
+            <span><small>Quầy hàng</small><strong>Alder</strong></span>
+        </a>
+        <nav>
+            <a class="@Mark("Index")" asp-controller="Home" asp-action="Index">Kệ hàng <span>01</span></a>
+            <a class="@Mark("CreateProduct")" asp-controller="Home" asp-action="CreateProduct">Thêm mặt hàng <span>02</span></a>
+            <a class="@ordersHere" asp-controller="Home" asp-action="Orders">Sổ đơn <span>03</span></a>
+            <a class="@Mark("CreateOrder")" asp-controller="Home" asp-action="CreateOrder">Lập đơn <span>04</span></a>
+            <a href="http://localhost:5122/">Cổng Alder <span>5122</span></a>
+            <a href="http://localhost:5192/">Nhân sự <span>5192</span></a>
         </nav>
-    </header>
-    
-    <div class="container py-4">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="bg-white border-top py-3 mt-auto text-muted">
-        <div class="container text-center fs-7">
-            &copy; 2026 - <strong>Sales Management System</strong> - Built with ASP.NET Core
+        <div class="rail-foot">
+            @if (signedIn)
+            {
+                <div class="who">
+                    Phiên dùng chung
+                    <b>@User.Identity!.Name</b>
+                    <div class="role-row">
+                        @foreach (var role in roles)
+                        {
+                            <span class="pill">@role</span>
+                        }
+                    </div>
+                </div>
+                <form action="http://localhost:5122/Account/Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <button type="submit" class="btn ghost block">Đăng xuất</button>
+                </form>
+            }
+            else
+            {
+                <a class="btn accent block" href="@loginUrl">Đăng nhập</a>
+            }
         </div>
-    </footer>
+    </aside>
+    <div class="stage">
+        <div class="stage-inner">
+            <main role="main">@RenderBody()</main>
+            <p class="colophon">Alder Bán hàng · tồn kho giảm khi đơn được ghi nhận.</p>
+        </div>
+    </div>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

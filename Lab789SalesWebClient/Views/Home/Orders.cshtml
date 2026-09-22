@@ -1,69 +1,61 @@
 @model List<Lab789SalesWebClient.Models.Order>
-
 @{
-    ViewData["Title"] = "Order History";
+    ViewData["Title"] = "Sổ đơn";
+    var orders = Model ?? new List<Order>();
+    var total = orders.Sum(o => o.Amount);
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<header class="page-head">
     <div>
-        <h2 class="fw-bold mb-1"><i class="bi bi-receipt-cutoff text-success me-2"></i>Order History</h2>
-        <p class="text-muted mb-0">List of all recorded customer purchases and orders</p>
+        <p class="page-kicker">Sổ đơn</p>
+        <h1 class="page-title">Những đơn đã ghi.</h1>
+        <p class="lede">Mỗi dòng là một lần bán. Thành tiền bằng đơn giá nhân số lượng tại thời điểm đọc sổ.</p>
     </div>
-    <div class="d-flex gap-2">
-        <a asp-action="CreateOrder" class="btn btn-success shadow-sm btn-rounded">
-            <i class="bi bi-cart-plus me-1"></i> Create New Order
-        </a>
-        <a asp-action="Index" class="btn btn-outline-dark shadow-sm btn-rounded">
-            <i class="bi bi-arrow-left me-1"></i> Back to Products
-        </a>
+    <div class="actions">
+        <a class="btn accent" asp-action="CreateOrder">Lập đơn</a>
+        <a class="btn ghost" asp-action="Index">Về kệ hàng</a>
     </div>
-</div>
+</header>
 
-<div class="card card-custom p-3 mb-4">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-dark">
+<section class="stats">
+    <article class="stat"><b>@orders.Count</b><span>Đơn</span></article>
+    <article class="stat"><b>@orders.Sum(o => o.Quantity)</b><span>Món đã bán</span></article>
+    <article class="stat"><b>@total.ToString("N0")</b><span>Tổng tiền</span></article>
+</section>
+
+@if (orders.Count == 0)
+{
+    <p class="empty">Chưa có đơn, hoặc API bán hàng chưa chạy ở cổng 5059.</p>
+}
+else
+{
+    <div class="ledger-wrap">
+        <table class="ledger">
+            <thead>
                 <tr>
-                    <th class="text-center" style="width: 90px;">Order ID</th>
-                    <th class="text-center" style="width: 100px;">Product ID</th>
-                    <th>Product Name</th>
-                    <th>Order Date</th>
-                    <th class="text-center">Quantity</th>
-                    <th class="text-end">Unit Price</th>
-                    <th class="text-end">Total Amount</th>
+                    <th>Đơn</th>
+                    <th>Mã hàng</th>
+                    <th>Tên</th>
+                    <th>Ngày</th>
+                    <th class="end">Số lượng</th>
+                    <th class="end">Đơn giá</th>
+                    <th class="end">Thành tiền</th>
                 </tr>
             </thead>
             <tbody>
-                @if (Model != null && Model.Any())
-                {
-                    @foreach (var order in Model)
-                    {
-                        <tr>
-                            <td class="text-center font-monospace fw-bold text-secondary">#@order.Id</td>
-                            <td class="text-center">
-                                <span class="badge bg-light text-dark border">@order.ProductId</span>
-                            </td>
-                            <td class="fw-bold text-dark">
-                                @(string.IsNullOrEmpty(order.ProductName) ? "N/A" : order.ProductName)
-                            </td>
-                            <td>
-                                <i class="bi bi-clock text-muted me-1"></i>@order.OrderDate.ToString("yyyy-MM-dd HH:mm")
-                            </td>
-                            <td class="text-center fw-bold">@order.Quantity</td>
-                            <td class="text-end text-muted">@order.Price.ToString("N0") VNĐ</td>
-                            <td class="text-end fw-bold text-success fs-6">
-                                @order.Amount.ToString("N0") <small class="text-muted">VNĐ</small>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
+                @foreach (var order in orders)
                 {
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">No orders placed yet.</td>
+                        <td class="num">@order.Id</td>
+                        <td class="num">@order.ProductId</td>
+                        <td>@(string.IsNullOrEmpty(order.ProductName) ? "Không rõ" : order.ProductName)</td>
+                        <td>@order.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td class="end">@order.Quantity</td>
+                        <td class="end">@order.Price.ToString("N0")</td>
+                        <td class="end pay">@order.Amount.ToString("N0")</td>
                     </tr>
                 }
             </tbody>
         </table>
     </div>
-</div>
+}

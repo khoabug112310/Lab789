@@ -76,7 +76,6 @@ namespace Lab789SalesWebClient.Controllers
                 var fileContent = new StreamContent(stream);
                 fileContent.Headers.ContentType = new MediaTypeHeaderValue(imageFile.ContentType);
                 form.Add(fileContent, "Image", imageFile.FileName);
-                form.Add(fileContent, "ImageUrl", imageFile.FileName);
             }
 
             var response = await httpClient.PostAsync(this.productUrl, form);

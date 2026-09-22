@@ -1,29 +1,16 @@
 @{
-    ViewData["Title"] = "Access Denied";
+    ViewData["Title"] = "Không đủ quyền";
+    ViewData["Bare"] = true;
 }
 
-<div class="row justify-content-center my-5">
-    <div class="col-md-7 col-lg-6">
-        <div class="card shadow-sm border-0 rounded-4 text-center p-4 p-md-5">
-            <div class="mb-4">
-                <div class="bg-danger-subtle text-danger rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 80px; height: 80px;">
-                    <i class="bi bi-shield-x fs-1"></i>
-                </div>
-            </div>
-
-            <h2 class="fw-bold text-danger mb-2">Access Denied</h2>
-            <p class="text-muted fs-6 mb-4">
-                You do not have the required permissions to access this page or resource. Please contact your system administrator if you believe this is an error.
-            </p>
-
-            <div class="d-flex justify-content-center gap-2">
-                <a href="/" class="btn btn-primary px-4 py-2 fw-semibold">
-                    <i class="bi bi-house-door me-1"></i> Return Home
-                </a>
-                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary px-4 py-2 fw-semibold">
-                    <i class="bi bi-person me-1"></i> Login with another account
-                </a>
-            </div>
+<section class="gate">
+    <div class="gate-copy">
+        <p class="page-kicker">Alder</p>
+        <h1>Cửa này không mở với vai trò hiện tại.</h1>
+        <p class="lede">Đơn chuyển phòng chỉ được duyệt bởi Manager hoặc Admin. Hãy đăng nhập tài khoản khác nếu bạn cần quyền đó.</p>
+        <div class="actions">
+            <a class="btn accent" href="/">Về bàn làm việc</a>
+            <a class="btn ghost" asp-controller="Account" asp-action="Login">Đổi tài khoản</a>
         </div>
     </div>
-</div>
+</section>

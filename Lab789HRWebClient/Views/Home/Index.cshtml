@@ -1,88 +1,65 @@
 @model List<Lab789HRWebClient.Models.Employee>
-
 @{
-    ViewData["Title"] = "Employee Management";
+    ViewData["Title"] = "Sổ nhân viên";
+    string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "•";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0][..1].ToUpperInvariant();
+        return string.Concat(parts[0][..1], parts[^1][..1]).ToUpperInvariant();
+    }
 }
-@if (User.Identity!.IsAuthenticated != true)
-{
-    <h1>Employee Manager</h1>
-    <div class="alert alert-danger"><h3>You need to Login</h3>
 
-        @{
-            var returnUrl = "http://localhost:5192/Home/Index";
-            var loginUrl = "http://localhost:5122/Account/Login?returnUrl=" + Uri.EscapeDataString(returnUrl);
-        }
-        <a href="@loginUrl" class="btn btn-primary">Login</a>
-    </div>
+@if (User.Identity?.IsAuthenticated != true)
+{
+    var loginUrl = "http://localhost:5122/Account/Login?returnUrl=" + Uri.EscapeDataString("http://localhost:5192/Home/Index");
+    <section class="locked">
+        <p class="page-kicker">Sổ nhân viên</p>
+        <h1 class="page-title">Hồ sơ chỉ mở sau khi đăng nhập.</h1>
+        <p class="lede">Dùng cổng Alder. Phiên đó được phòng nhân sự nhận ra mà không cần đăng nhập lần nữa.</p>
+        <a class="btn accent" href="@loginUrl">Đến cổng đăng nhập</a>
+    </section>
 }
 else
 {
-    <div class="container my-5">
-        <div class="card shadow-sm border-0 rounded-3">
-            <div class="card-header bg-primary bg-gradient text-white p-4 d-flex justify-content-between align-items-center rounded-top-3">
-                <div>
-                    <h3 class="fw-bold mb-1"><i class="bi bi-people-fill me-2"></i>Employee List</h3>
-                    <p class="mb-0 text-white-50 fs-6">Manage employee records and details</p>
-                </div>
-                <a asp-action="Create" class="btn btn-light btn-lg px-4 shadow-sm fw-semibold text-primary">
-                    + Create New
-                </a>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="bg-light text-uppercase fs-7 text-muted border-bottom">
-                            <tr>
-                                <th class="ps-4 py-3" style="width: 80px;">ID</th>
-                                <th class="py-3">Full Name</th>
-                                <th class="py-3">Email</th>
-                                <th class="py-3">Department</th>
-                                <th class="py-3">Position</th>
-                                <th class="pe-4 py-3 text-end">Salary</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model != null && Model.Any())
-                            {
-                                @foreach (var item in Model)
-                                {
-                                    <tr>
-                                        <td class="ps-4 fw-bold text-secondary">#@item.Id</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <div class="avatar-circle bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 38px; height: 38px;">
-                                                    @(string.IsNullOrEmpty(item.FullName) ? "E" : item.FullName.Substring(0, 1).ToUpper())
-                                                </div>
-                                                <span class="fw-semibold text-dark">@item.FullName</span>
-                                            </div>
-                                        </td>
-                                        <td class="text-muted">@item.Email</td>
-                                        <td>
-                                            <span class="badge bg-info bg-opacity-10 text-info px-3 py-2 rounded-pill fs-7 fw-normal">
-                                                @item.Department
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-secondary bg-opacity-10 text-dark px-3 py-2 rounded-pill fs-7 fw-normal">
-                                                @item.Position
-                                            </span>
-                                        </td>
-                                        <td class="pe-4 text-end fw-bold text-success fs-6">
-                                            $@item.Salary.ToString("N2")
-                                        </td>
-                                    </tr>
-                                }
-                            }
-                            else
-                            {
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted py-4">No employee records found.</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    var people = Model ?? new List<Employee>();
+    var departments = people.Select(e => e.Department).Where(d => !string.IsNullOrWhiteSpace(d)).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+    var payroll = people.Sum(e => e.Salary);
+
+    <header class="page-head">
+        <div>
+            <p class="page-kicker">Sổ nhân viên</p>
+            <h1 class="page-title">Người đang làm việc.</h1>
+            <p class="lede">Danh sách lấy từ API nhân sự. Lần đọc sau trong năm phút có thể đến từ Redis, cho đến khi có hồ sơ mới hoặc một đơn chuyển phòng được duyệt.</p>
         </div>
-    </div>
+        <a class="btn accent" asp-action="Create">Thêm hồ sơ</a>
+    </header>
+
+    <section class="stats">
+        <article class="stat"><b>@people.Count</b><span>Nhân viên</span></article>
+        <article class="stat"><b>@departments</b><span>Phòng ban</span></article>
+        <article class="stat"><b>@payroll.ToString("N0")</b><span>Tổng lương</span></article>
+    </section>
+
+    @if (people.Count == 0)
+    {
+        <p class="empty">Chưa có hồ sơ, hoặc API nhân sự chưa chạy ở cổng 5213.</p>
+    }
+    else
+    {
+        <ol class="roster">
+            @foreach (var item in people)
+            {
+                <li>
+                    <span class="avatar">@Initials(item.FullName)</span>
+                    <div class="person">
+                        <b>@item.FullName</b>
+                        <span>@item.Email · @item.Position</span>
+                    </div>
+                    <span class="stamp pill quiet">@item.Department</span>
+                    <span class="pay">@item.Salary.ToString("N0")</span>
+                </li>
+            }
+        </ol>
+    }
 }

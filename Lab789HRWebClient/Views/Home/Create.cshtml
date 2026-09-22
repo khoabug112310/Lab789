@@ -1,63 +1,63 @@
 @model Lab789HRWebClient.Models.EmployeeViewModel
-
 @{
-    ViewData["Title"] = "Create Employee";
+    ViewData["Title"] = "Thêm hồ sơ";
 }
 
-<div class="container my-5" style="max-width: 600px;">
-    <div class="card shadow-sm border-0 rounded-3">
-        <div class="card-header bg-primary bg-gradient text-white p-4 rounded-top-3">
-            <h3 class="fw-bold mb-1"><i class="bi bi-person-plus-fill me-2"></i>Create Employee</h3>
-            <p class="mb-0 text-white-50 fs-6">Fill in the information below to add a new employee</p>
+<header class="page-head">
+    <div>
+        <p class="page-kicker">Hồ sơ mới</p>
+        <h1 class="page-title">Ghi một người vào sổ.</h1>
+        <p class="lede">Email không được trùng. Sau khi lưu, danh sách nhân viên trong Redis được xóa để lần mở sổ sau đọc lại từ cơ sở dữ liệu.</p>
+    </div>
+</header>
+
+<form class="sheet" asp-action="Create" method="post" style="max-width: 640px;">
+    <div asp-validation-summary="ModelOnly" role="alert"></div>
+    <div class="form-grid">
+        <div>
+            <label class="lbl" asp-for="FullName">Họ và tên</label>
+            <input class="field" asp-for="FullName" placeholder="Nguyễn An" />
+            <span asp-validation-for="FullName"></span>
         </div>
-        <div class="card-body p-4">
-            <form asp-action="Create" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                <div class="mb-3">
-                    <label asp-for="FullName" class="form-label fw-semibold">Full Name</label>
-                    <input asp-for="FullName" class="form-control" placeholder="Enter full name" />
-                    <span asp-validation-for="FullName" class="text-danger fs-7"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="Email" class="form-label fw-semibold">Email Address</label>
-                    <input asp-for="Email" type="email" class="form-control" placeholder="example@domain.com" />
-                    <span asp-validation-for="Email" class="text-danger fs-7"></span>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Department" class="form-label fw-semibold">Department</label>
-                        <input asp-for="Department" class="form-control" placeholder="e.g. IT, HR" />
-                        <span asp-validation-for="Department" class="text-danger fs-7"></span>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label asp-for="Position" class="form-label fw-semibold">Position</label>
-                        <input asp-for="Position" class="form-control" placeholder="e.g. Developer" />
-                        <span asp-validation-for="Position" class="text-danger fs-7"></span>
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label asp-for="Salary" class="form-label fw-semibold">Salary ($)</label>
-                    <input asp-for="Salary" type="number" step="0.01" class="form-control" placeholder="0.00" />
-                    <span asp-validation-for="Salary" class="text-danger fs-7"></span>
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center pt-2 border-top">
-                    <a asp-action="Index" class="btn btn-outline-secondary px-4">
-                        &larr; Back to List
-                    </a>
-                    <button type="submit" class="btn btn-primary px-4 fw-semibold">
-                        Save Employee
-                    </button>
-                </div>
-            </form>
+        <div>
+            <label class="lbl" asp-for="Email">Email</label>
+            <input class="field" asp-for="Email" placeholder="an@example.com" />
+            <span asp-validation-for="Email"></span>
+        </div>
+        <div class="form-row">
+            <div>
+                <label class="lbl" asp-for="Department">Phòng ban</label>
+                <input class="field" asp-for="Department" list="departments" placeholder="IT" />
+                <datalist id="departments">
+                    <option value="IT"></option>
+                    <option value="HR"></option>
+                    <option value="Finance"></option>
+                    <option value="Sales"></option>
+                    <option value="Marketing"></option>
+                    <option value="Operations"></option>
+                    <option value="Legal"></option>
+                    <option value="Customer Support"></option>
+                </datalist>
+                <span asp-validation-for="Department"></span>
+            </div>
+            <div>
+                <label class="lbl" asp-for="Position">Vị trí</label>
+                <input class="field" asp-for="Position" placeholder="Developer" />
+                <span asp-validation-for="Position"></span>
+            </div>
+        </div>
+        <div>
+            <label class="lbl" asp-for="Salary">Lương</label>
+            <input class="field" asp-for="Salary" type="number" step="0.01" min="0" />
+            <span asp-validation-for="Salary"></span>
+        </div>
+        <div class="form-actions">
+            <a class="btn ghost" asp-action="Index">Về sổ</a>
+            <button class="btn accent" type="submit">Lưu hồ sơ</button>
         </div>
     </div>
-</div>
+</form>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
 }

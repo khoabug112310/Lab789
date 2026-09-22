@@ -1,0 +1,210 @@
+@model List<Lab789HRWebClient.Models.DepartmentTransferItem>
+@{
+    ViewData["Title"] = "Đơn Xin Chuyển Phòng Ban";
+    var currentStatus = ViewBag.CurrentStatus as string;
+    var isManager = User.IsInRole("Manager") || User.IsInRole("Admin");
+}
+
+<div class="container my-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1"><i class="bi bi-arrow-left-right text-primary me-2"></i>Đơn Xin Chuyển Phòng Ban</h2>
+            <p class="text-muted mb-0">Quản lý và xét duyệt các yêu cầu điều chuyển phòng ban của nhân viên</p>
+        </div>
+        <div>
+            <a asp-action="Create" class="btn btn-primary btn-lg shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i> Viết Đơn Xin Chuyển
+            </a>
+        </div>
+    </div>
+
+    <!-- Alerts -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["WarningMessage"] != null)
+    {
+        <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["WarningMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-x-circle-fill me-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Filter Navigation -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-2">
+            <ul class="nav nav-pills">
+                <li class="nav-item">
+                    <a class="nav-link @(string.IsNullOrEmpty(currentStatus) ? "active" : "")" asp-action="Index">Tất Cả (@Model.Count)</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Pending" ? "active" : "")" asp-action="Index" asp-route-status="Pending">
+                        <i class="bi bi-clock-history me-1"></i> Đang Chờ Duyệt (@Model.Count(m => m.Status == "Pending"))
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Approved" ? "active" : "")" asp-action="Index" asp-route-status="Approved">
+                        <i class="bi bi-check2-circle me-1"></i> Đã Duyệt (@Model.Count(m => m.Status == "Approved"))
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentStatus == "Rejected" ? "active" : "")" asp-action="Index" asp-route-status="Rejected">
+                        <i class="bi bi-x-circle me-1"></i> Đã Từ Chối (@Model.Count(m => m.Status == "Rejected"))
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-secondary small text-uppercase">
+                    <tr>
+                        <th class="ps-4 py-3">Mã Đơn</th>
+                        <th class="py-3">Nhân Viên</th>
+                        <th class="py-3">Từ Phòng Ban</th>
+                        <th class="py-3">Chuyển Đến</th>
+                        <th class="py-3">Lý Do</th>
+                        <th class="py-3">Ngày Gửi</th>
+                        <th class="py-3 text-center">Trạng Thái</th>
+                        <th class="py-3">Người Duyệt / Ghi Chú</th>
+                        <th class="pe-4 py-3 text-end">Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-muted">#@item.Id</td>
+                                <td>
+                                    <div class="fw-semibold text-dark">@item.EmployeeName</div>
+                                    <small class="text-muted">@item.EmployeeEmail</small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1">
+                                        @item.FromDepartment
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 fw-bold">
+                                        <i class="bi bi-arrow-right me-1"></i>@item.ToDepartment
+                                    </span>
+                                </td>
+                                <td style="max-width: 250px;">
+                                    <span class="text-truncate d-inline-block" style="max-width: 240px;" title="@item.Reason">
+                                        @item.Reason
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">@item.RequestDate.ToString("dd/MM/yyyy HH:mm")</small>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Status == "Pending")
+                                    {
+                                        <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">
+                                            <i class="bi bi-hourglass-split me-1"></i> Pending
+                                        </span>
+                                    }
+                                    else if (item.Status == "Approved")
+                                    {
+                                        <span class="badge bg-success text-white px-3 py-2 rounded-pill shadow-sm">
+                                            <i class="bi bi-check-circle-fill me-1"></i> Approved
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill shadow-sm">
+                                            <i class="bi bi-x-circle-fill me-1"></i> Rejected
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ReviewedBy))
+                                    {
+                                        <div class="small">
+                                            <span class="fw-semibold">@item.ReviewedBy</span>
+                                            @if (item.ReviewDate.HasValue)
+                                            {
+                                                <span class="text-muted">(@item.ReviewDate.Value.ToString("dd/MM/yy"))</span>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(item.ReviewComment))
+                                        {
+                                            <small class="text-muted fst-italic">"@item.ReviewComment"</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">---</span>
+                                    }
+                                </td>
+                                <td class="pe-4 text-end">
+                                    @if (item.Status == "Pending")
+                                    {
+                                        @if (isManager)
+                                        {
+                                            <div class="d-flex justify-content-end gap-2">
+                                                <!-- Approve Form -->
+                                                <form asp-action="Approve" asp-route-id="@item.Id" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Bạn có chắc chắn muốn PHÊ DUYỆT chuyển nhân viên @item.EmployeeName sang phòng @item.ToDepartment?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="comment" value="Approved by Manager" />
+                                                    <button type="submit" class="btn btn-sm btn-success shadow-sm" title="Duyệt chuyển phòng ban">
+                                                        <i class="bi bi-check-lg me-1"></i> Duyệt
+                                                    </button>
+                                                </form>
+
+                                                <!-- Reject Form -->
+                                                <form asp-action="Reject" asp-route-id="@item.Id" method="post" class="d-inline"
+                                                      onsubmit="return confirm('Bạn có chắc chắn muốn TỪ CHỐI đơn này?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="comment" value="Rejected by Manager" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger shadow-sm" title="Từ chối đơn">
+                                                        <i class="bi bi-x-lg me-1"></i> Từ chối
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small"><i class="bi bi-clock me-1"></i>Chờ duyệt</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small"><i class="bi bi-lock me-1"></i>Đã xử lý</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2 text-muted"></i>
+                                Chưa có đơn xin chuyển phòng ban nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

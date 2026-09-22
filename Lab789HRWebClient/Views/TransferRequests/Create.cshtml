@@ -1,0 +1,69 @@
+@model Lab789HRWebClient.Models.CreateDepartmentTransferViewModel
+@{
+    ViewData["Title"] = "Tạo Đơn Xin Chuyển Phòng Ban";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white py-3 px-4">
+                    <h4 class="fw-bold mb-0"><i class="bi bi-file-earmark-text me-2"></i>Đơn Xin Chuyển Phòng Ban</h4>
+                    <p class="mb-0 text-white-50 small">Điền thông tin nguyện vọng chuyển phòng ban</p>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4" role="alert"></div>
+
+                        <!-- Employee selection -->
+                        <div class="mb-3">
+                            <label asp-for="EmployeeId" class="form-label fw-semibold text-secondary">
+                                <i class="bi bi-person-badge me-1"></i> Chọn Nhân Viên Xin Chuyển
+                            </label>
+                            <select asp-for="EmployeeId" asp-items="Model.EmployeeList" class="form-select border-start-0" required>
+                                <option value="">-- Chọn nhân viên --</option>
+                            </select>
+                            <span asp-validation-for="EmployeeId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Target Department -->
+                        <div class="mb-3">
+                            <label asp-for="ToDepartment" class="form-label fw-semibold text-secondary">
+                                <i class="bi bi-building me-1"></i> Phòng Ban Muốn Chuyển Đến
+                            </label>
+                            <select asp-for="ToDepartment" asp-items="Model.DepartmentList" class="form-select" required>
+                                <option value="">-- Chọn phòng ban mục tiêu --</option>
+                            </select>
+                            <span asp-validation-for="ToDepartment" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Reason -->
+                        <div class="mb-4">
+                            <label asp-for="Reason" class="form-label fw-semibold text-secondary">
+                                <i class="bi bi-chat-left-dots me-1"></i> Lý Do Xin Chuyển
+                            </label>
+                            <textarea asp-for="Reason" class="form-control" rows="4" 
+                                      placeholder="Trình bày lý do, nguyện vọng cá nhân hoặc định hướng phát triển..." required></textarea>
+                            <span asp-validation-for="Reason" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-1"></i> Quay Lại
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 shadow-sm fw-semibold">
+                                <i class="bi bi-send-fill me-1"></i> Nộp Đơn
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

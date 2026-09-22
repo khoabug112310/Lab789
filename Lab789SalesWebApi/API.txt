@@ -1,0 +1,2 @@
+﻿Product: http://localhost:5059/api/Product
+Order: http://localhost:5059/api/Orders 

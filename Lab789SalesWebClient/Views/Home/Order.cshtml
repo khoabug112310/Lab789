@@ -1,0 +1,52 @@
+@model List<Lab789SalesWebClient.Models.Order>
+
+@{
+    ViewData["Title"] = "Orders List";
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h1 class="display-4">Orders List</h1>
+        <div class="d-flex justify-content-center gap-2 mt-3">
+            <a asp-action="CreateOrder" class="btn btn-success"><i class="bi bi-cart-plus me-1"></i> Create New Order</a>
+            <a asp-action="Index" class="btn btn-primary"><i class="bi bi-arrow-left me-1"></i> Back to Products</a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover align-middle text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>Order Id</th>
+                <th>Product Id</th>
+                <th>Product Name</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total Amount</th>
+                <th>Order Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.ProductId</td>
+                        <td>@item.ProductName</td>
+                        <td>@item.Price.ToString("N2")</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Amount.ToString("N2")</td>
+                        <td>@item.OrderDate.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No orders found.</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
